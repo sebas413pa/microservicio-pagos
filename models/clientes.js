@@ -57,9 +57,8 @@ const clienteSchema = new mongoose.Schema({
     },
     compras: [Number], 
     estado: {
-        type: String,
-        enum: ['activo', 'inactivo'],
-        default: 'activo',
+        type: Number,
+        default: 1,
     }
 }, {
     timestamps: true, 
