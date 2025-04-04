@@ -17,6 +17,7 @@ module.exports =
     async buscarNit(req, res){
         const nit = req.params.nit
         try{
+            const cliente = await Cliente.findOne({nit: nit, estado:1}).select('nombreCliente apellidosCliente nit direccion telefono email dpi tarjetaFidelidad estado');
             if(cliente){
                 res.status(200).json({cliente:cliente})
             }
@@ -41,6 +42,16 @@ module.exports =
             const email = req.body.Email;
             const dpi = req.body.Dpi;
     
+            const tarjetaFidelidad = req.body.noTarjeta
+                ? [
+                    {
+                        noTarjeta: req.body.noTarjeta,
+                        cantidadPuntos: 0,
+                        fechaExpiracion: new Date(new Date().setFullYear(new Date().getFullYear() + 2)),
+                        estado: 1,
+                    },
+                ]
+                : undefined;
     
             const cliente = new Cliente({
                 nombreCliente,
@@ -50,6 +61,7 @@ module.exports =
                 telefono,
                 email,
                 dpi,
+                tarjetaFidelidad,
             });
     
             await cliente.save();
