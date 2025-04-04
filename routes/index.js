@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const router = Router();
-
+const bancosController = require('../controllers/bancosController')
 const metodo = require('../controllers/metodosController');
 const clientesController = require('../controllers/clientesController')
 const fidelidadController = require('../controllers/fidelidadController')
@@ -24,7 +24,11 @@ module.exports = (app) => {
     router.post('/cliente/fidelidad/crear/:idCliente', fidelidadController.agregar)
     router.put('/cliente/fidelidad/desactivar/:idCliente', fidelidadController.desactivar)
 
+    //BANCOS
+    router.post('/bancos/crear',bancosController.crearBanco);
+    router.get('/bancos/obtener',bancosController.obtenerBancos);
+    router.get('/bancos/obtener/:id',bancosController.obtenerBancoPorId);
+    router.put('/bancos/eliminar/:id',bancosController.eliminarBanco);
 
     app.use('/pagos', router)
 };
-
