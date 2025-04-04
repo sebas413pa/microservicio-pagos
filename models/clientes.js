@@ -1,12 +1,9 @@
 const mongoose = require('mongoose');
 
-
 //Tarjeta de fidelidad
 const tarjetaFidelidadSchema = new mongoose.Schema({
     noTarjeta: {
-        type: String,
-        required: true,
-        unique: true
+        type: String
     },
     cantidadPuntos: {
         type: Number,
@@ -57,12 +54,17 @@ const clienteSchema = new mongoose.Schema({
     },
     compras: [Number], 
     estado: {
-        type: String,
-        enum: ['activo', 'inactivo'],
-        default: 'activo',
+        type: Number,
+        default: 1,
     }
 }, {
     timestamps: true, 
+    toJSON: {
+        transform: function (doc, ret) {
+            delete ret.__v; 
+            return ret;
+        }
+    }
 });
 
 const Cliente = mongoose.model('Cliente', clienteSchema, 'clientes');

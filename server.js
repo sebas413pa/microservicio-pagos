@@ -7,7 +7,8 @@ const http = require('http');
 const mongoose = require('mongoose');
 
 const app = express();
-const port = parseInt(process.env.PORT, 10) || 3001;
+const port = parseInt(process.env.PORT, 10) || 3000;
+app.use(express.json()); 
 
 const connectDB = async () => {
   try {
@@ -21,7 +22,9 @@ const connectDB = async () => {
       process.exit(1);
   }
 };
+
 connectDB()
+
 // Middlewares
 app.use(logger('dev'));
 app.use(cors());
@@ -32,7 +35,7 @@ app.use(express.urlencoded({ limit: "50mb", extended: false }));
 app.use(express.static('./public'));
 
 
-require("./routes")(app);
+require("./routes/index")(app);
 
 
 app.get('*', (req, res) => res.status(200).send({
