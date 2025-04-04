@@ -21,7 +21,7 @@ const connectDB = async () => {
       process.exit(1);
   }
 };
-
+connectDB();
 // Middlewares
 app.use(logger('dev'));
 app.use(cors());
