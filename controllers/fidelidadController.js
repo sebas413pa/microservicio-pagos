@@ -17,11 +17,14 @@ module.exports =
             const cantidadTarjetas = cliente.tarjetaFidelidad.length;
             console.log(cantidadTarjetas)
 
-            if(cliente.tarjetaFidelidad[cantidadTarjetas-1].estado == 1){
-                return res.status(422).json({mensaje: "El cliente tiene una tarjeta de fidelidad activa"})
+            if(cantidadTarjetas != 0)
+            {
+                if(cliente.tarjetaFidelidad[cantidadTarjetas-1].estado == 1){
+                    return res.status(422).json({mensaje: "El cliente tiene una tarjeta de fidelidad activa"})
+                }
             }
 
-            const noTarjetaFidelidad = cliente.tarjetaFidelidad[cantidadTarjetas-1].noTarjeta + cantidadTarjetas;
+            const noTarjetaFidelidad = "FID-" + cliente.dpi + "-" + cantidadTarjetas
     
             const fechaExpiracion = new Date();
             fechaExpiracion.setFullYear(fechaExpiracion.getFullYear() + 2);
@@ -44,7 +47,7 @@ module.exports =
         }
         catch(error){
             console.error("Error al agregar tarjeta:", error); 
-            res.status(400).json({ mensaje: "Error al agregar tarjeta", error });
+            res.status(400).json({ mensaje: "Error al agregar tarjeta"});
         }
     },
     async desactivar(req, res){
@@ -72,7 +75,7 @@ module.exports =
 
             }catch(error){
                 console.error("Error al actualizar tarjeta:", error);
-                res.status(400).json({ mensaje: "Error al actualizar tarjeta", error });
+                res.status(400).json({ mensaje: "Error al actualizar tarjeta" });
             }
             
 

@@ -8,7 +8,7 @@ module.exports =
 {
     async list(req, res){
         try {
-            const clientes = await Cliente.find().select('nombreCliente apellidosCliente nit direccion telefono email dpi tarjetaFidelidad estado ');
+            const clientes = await Cliente.find().select('nombreCliente apellidosCliente nit direccion telefono email dpi tarjetaFidelidad estado');
             res.status(200).json({clientes:clientes});
         } catch (error) {
             res.status(500).json({ mensaje: 'Error al obtener los clientes', error });
@@ -17,7 +17,6 @@ module.exports =
     async buscarNit(req, res){
         const nit = req.params.nit
         try{
-            const cliente = await Cliente.findOne({nit: nit, estado:1}).select('nombreCliente apellidosCliente nit direccion telefono email dpi tarjetaFidelidad estado ');
             if(cliente){
                 res.status(200).json({cliente:cliente})
             }
@@ -41,10 +40,7 @@ module.exports =
             const telefono = req.body.Telefono;
             const email = req.body.Email;
             const dpi = req.body.Dpi;
-            const noTarjetaFidelidad = "FID-" + dpi;
     
-            const fechaExpiracion = new Date();
-            fechaExpiracion.setFullYear(fechaExpiracion.getFullYear() + 2);
     
             const cliente = new Cliente({
                 nombreCliente,
@@ -54,21 +50,19 @@ module.exports =
                 telefono,
                 email,
                 dpi,
-                tarjetaFidelidad: [
-                    {
-                        noTarjeta: noTarjetaFidelidad,
-                        cantidadPuntos: 0,
-                        fechaExpiracion,
-                        estado: 1
-                    }
-                ]
             });
     
             await cliente.save();
             res.status(200).json(cliente);
         } catch (error) {
+            if (error.code === 11000) {
+                const duplicateField = Object.keys(error.keyValue)[0];
+                return res.status(400).json({ 
+                    mensaje: `Error: El campo '${duplicateField}' ya está en uso.`
+                });
+            }
             console.error("Error al crear el cliente:", error); 
-            res.status(400).json({ message: "Error al crear el cliente", error });
+            res.status(400).json({ mensaje: "Error al crear el cliente"});
         }
     }, 
     async update(req, res) {
@@ -114,7 +108,7 @@ module.exports =
         }
         catch(error)
         {
-            console.error("Error al eliminar el cliente:", error); 
+            console.error("Error al eliminar el cliente"); 
             res.status(400).json({ mensaje: "Error al eliminar el cliente", error });
         }
     },
