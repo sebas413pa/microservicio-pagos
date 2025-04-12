@@ -1,5 +1,4 @@
 'use strict'
-const { desactivar } = require('../../../../backend.node.store/backend_node_arqui1/controllers/automovilesController')
 const db = require('../models')
 const Cliente = db.Cliente
 
