@@ -2,6 +2,7 @@
 const crypto = require("crypto");
 const db = require('../models');
 const { now } = require("mongoose");
+const Banco = db.Banco
 const Transaccion = db.Transaccion
 const Cliente = db.Cliente
 
@@ -66,7 +67,13 @@ module.exports = {
                         const noDebito = Transaccion.countByMetodoPago(3)
                         element.correlativo = "DEB-"+noDebito
                     case 4:
-                        //aca se va a tener que buscar el banco por su id, tomar las primeras 4 letras del nombre - numero de transaccion en ese banco - numero de transacciones totales
+                        const noTransferencia = Transaccion.countByMetodoPago(4)
+                        const nombreBanco = Banco.getByNombreId(element.idBanco).nombre
+                        const totalTransaccionesBanco = Banco.getByNombreId(element.idBanco).totalTransacciones
+                        element.correlativo = nombreBanco.substring(0,4) +"-"+noTransferencia+totalTransaccionesBanco
+                    case 5:
+                        const noTarjetaFidelidad = Transaccion.countByMetodoPago(5)
+                        element.correlativo = "FID-"+noTarjetaFidelidad
                 }
 
             })
@@ -75,7 +82,6 @@ module.exports = {
             {
                 return res.status(500).json({mensaje: "El total de compra no coincide con el total pagado"})
             }
-            const idCliente = cliente.idCliente
 
 
             const objetoTransaccion = {
@@ -90,6 +96,7 @@ module.exports = {
                 detalle
             }
             
+            await objetoTransaccion.save()
         }
         catch
         {

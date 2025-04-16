@@ -43,4 +43,10 @@ const BancoSchema = new mongoose.Schema(
     }
 }
 );
+
+BancoSchema.statics.getNombreById = async function (idBanco) {
+    const banco = await this.findById(idBanco).select('nombre totalTransacciones');
+    return banco ? banco.nombre : null;
+};
+
 module.exports = mongoose.model('bancos', BancoSchema);
