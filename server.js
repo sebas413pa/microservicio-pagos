@@ -7,7 +7,7 @@ const http = require('http');
 const mongoose = require('mongoose');
 
 const app = express();
-const port = parseInt(process.env.PORT, 10) || 3000;
+const port = parseInt(process.env.PORT, 10) || 3001;
 app.use(express.json()); 
 
 const connectDB = async () => {
