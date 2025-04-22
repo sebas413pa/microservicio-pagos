@@ -1,7 +1,6 @@
 'use strict'
 const db = require('../models')
 const Cliente = db.Cliente
-
 module.exports =
 {
     async agregar(req, res){
@@ -76,7 +75,29 @@ module.exports =
                 console.error("Error al actualizar tarjeta:", error);
                 res.status(400).json({ mensaje: "Error al actualizar tarjeta" });
             }
-            
+    },
 
+    async sumarPuntos(idCliente, puntos) {
+        try
+        {
+            const cliente = await Cliente.findOne({_id: idCliente, estado: 1})
+            if(!cliente){
+                return res.status(500).json({ mensaje: "Cliente no encontrado" });
+            }
+            const cantidadTarjetas = cliente.tarjetaFidelidad.length;
+            if(cliente.tarjetaFidelidad[cantidadTarjetas-1].estado == 0){
+                return res.status(422).json({mensaje: "El cliente no tiene una tarjeta de fidelidad activa"})
+            }
+            const cantidadPuntos = cliente.tarjetaFidelidad[cantidadTarjetas -1].cantidadPuntos + puntos
+            const clienteActualizado = await Cliente.findOneAndUpdate(
+                { _id: idCliente, "tarjetaFidelidad.noTarjeta": cliente.tarjetaFidelidad[cantidadTarjetas-1].noTarjeta },  
+                { $set: { "tarjetaFidelidad.$.cantidadPuntos": cantidadPuntos } },        
+            );
+
+        }
+        catch(error){
+            console.error("Error al actualizar tarjeta:", error);
+            res.status(400).json({ mensaje: "Error al actualizar tarjeta" });
+        }
     }
 }

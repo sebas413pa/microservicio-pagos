@@ -19,7 +19,7 @@ const metodoPagoSchema = new mongoose.Schema({
         unique: true
     },
     idBanco: {
-        type: Number
+        type: String
     }
 });
 
@@ -47,11 +47,10 @@ const detalleSchema = new mongoose.Schema({
 const transaccionesSchema = new mongoose.Schema({
     noTransaccion: {
         type: Number,
-        required: true,
         AutoIncrement: true
     },
     noAutorizacion: {
-        type: Number,
+        type: String,
         required: true
     },
     fecha: {

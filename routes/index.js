@@ -4,6 +4,7 @@ const bancosController = require('../controllers/bancosController')
 const metodo = require('../controllers/metodosController');
 const clientesController = require('../controllers/clientesController')
 const fidelidadController = require('../controllers/fidelidadController')
+const transaccionesController = require('../controllers/transaccionController')
 
 router.post('/metodos/crear', metodo.create);
 router.put('/metodos/eliminar/:_id', metodo.eliminarMetodo);
@@ -11,7 +12,6 @@ router.get('/metodos/obtener', metodo.obtenerMetodosPago);
 router.get('/metodos/obtener/:_id', metodo.obtenerMetodoPagoPorId);
 
 module.exports = (app) => {
-    app.use('/', router);
     
     //Clientes
     router.post('/cliente/crear', clientesController.create)
@@ -29,6 +29,9 @@ module.exports = (app) => {
     router.get('/bancos/obtener',bancosController.obtenerBancos);
     router.get('/bancos/obtener/:id',bancosController.obtenerBancoPorId);
     router.put('/bancos/eliminar/:id',bancosController.eliminarBanco);
+
+    //TRANSACCION
+    router.post('/transacciones/crear', transaccionesController.create);
 
     app.use('/pagos', router)
 };
