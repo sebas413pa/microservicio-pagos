@@ -2,11 +2,13 @@ const { Router } = require('express');
 const router = Router();
 const bancosController = require('../controllers/bancosController')
 const metodo = require('../controllers/metodosController');
+const cierre = require('../controllers/cierreController');
 const clientesController = require('../controllers/clientesController')
 const fidelidadController = require('../controllers/fidelidadController')
 const transaccionesController = require('../controllers/transaccionController')
 const facturasController = require('../controllers/facturasController');
 const devolucionesController = require('../controllers/devolucionesController');
+
 router.post('/metodos/crear', metodo.create);
 router.put('/metodos/eliminar/:_id', metodo.eliminarMetodo);
 router.get('/metodos/obtener', metodo.obtenerMetodosPago);
@@ -25,6 +27,15 @@ module.exports = (app) => {
     router.post('/cliente/fidelidad/crear/:idCliente', fidelidadController.agregar)
     router.put('/cliente/fidelidad/desactivar/:idCliente', fidelidadController.desactivar)
 
+    //Métodos de pago
+    router.post('/metodos/crear', metodo.create);
+    router.put('/metodos/eliminar/:_id', metodo.eliminarMetodo);
+    router.get('/metodos/obtener', metodo.obtenerMetodosPago);
+    router.get('/metodos/obtener/:_id', metodo.obtenerMetodoPagoPorId);
+
+    // Cierre de caja
+    router.post('/cierre/obtener', cierre.obtenerCierres); 
+    router.post('/cierres/crear', cierre.create);
     //BANCOS
     router.post('/bancos/crear',bancosController.crearBanco);
     router.get('/bancos/obtener',bancosController.obtenerBancos);
