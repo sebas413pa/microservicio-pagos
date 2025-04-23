@@ -42,17 +42,6 @@ module.exports =
             const email = req.body.Email;
             const dpi = req.body.Dpi;
     
-            const tarjetaFidelidad = req.body.noTarjeta
-                ? [
-                    {
-                        noTarjeta: req.body.noTarjeta,
-                        cantidadPuntos: 0,
-                        fechaExpiracion: new Date(new Date().setFullYear(new Date().getFullYear() + 2)),
-                        estado: 1,
-                    },
-                ]
-                : undefined;
-    
             const cliente = new Cliente({
                 nombreCliente,
                 apellidosCliente,
@@ -60,8 +49,7 @@ module.exports =
                 direccion,
                 telefono,
                 email,
-                dpi,
-                tarjetaFidelidad,
+                dpi
             });
     
             await cliente.save();

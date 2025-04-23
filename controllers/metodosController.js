@@ -1,7 +1,6 @@
 const MetodoPago = require('../models/metodos');
-const mongoose = require('mongoose'); // Asegúrate de importar mongoose para validar ObjectId
+const mongoose = require('mongoose'); 
 
-// Obtener todos los métodos de pago disponibles (estado = 1)
 exports.obtenerMetodosPago = async (req, res) => {
     try {
         const metodosPago = await MetodoPago.find({ estado: 1 }).select('_id metodo');
@@ -17,7 +16,6 @@ exports.obtenerMetodosPago = async (req, res) => {
     }
 };
 
-// Obtener un método de pago por su ID
 exports.obtenerMetodoPagoPorId = async (req, res) => {
     try {
         const { _id } = req.params;
@@ -52,7 +50,6 @@ exports.obtenerMetodoPagoPorId = async (req, res) => {
     }
 };
 
-// Crear un nuevo método de pago
 exports.create = async (req, res) => {
     try {
         const metodoPago = new MetodoPago(req.body);

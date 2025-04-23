@@ -1,8 +1,6 @@
 'use strict'
-const { desactivar } = require('../../../../backend.node.store/backend_node_arqui1/controllers/automovilesController')
 const db = require('../models')
 const Cliente = db.Cliente
-
 module.exports =
 {
     async agregar(req, res){
@@ -77,7 +75,7 @@ module.exports =
                 console.error("Error al actualizar tarjeta:", error);
                 res.status(400).json({ mensaje: "Error al actualizar tarjeta" });
             }
-            
+    },
 
-    }
+
 }
