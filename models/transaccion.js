@@ -21,7 +21,9 @@ const metodoPagoSchema = new mongoose.Schema({
     idBanco: {
         type: String
     }
-});
+
+}, { _id: false }
+);
 
 const detalleSchema = new mongoose.Schema({
     producto: {
@@ -42,7 +44,8 @@ const detalleSchema = new mongoose.Schema({
         type: Number,
         default: 1
     }
-});
+}, { _id: false }
+);
 
 const transaccionesSchema = new mongoose.Schema({
     noTransaccion: {

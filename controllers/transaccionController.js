@@ -71,7 +71,133 @@ async function generarFactura(detalle, cliente, total, totalDescuento){
 }
 
 module.exports = {
+    async listByService(req, res) {
+        const { fechaInicial, fechaFinal } = req.body;
+        const idServicio = req.params.idServicio;
+        let filtro = {};
+        
+        filtro.servicioTransaccion = parseInt(idServicio);
+        if (fechaInicial || fechaFinal) {
+          filtro.fecha = {};
+          if (fechaInicial) filtro.fecha.$gte = new Date(fechaInicial);
+          if (fechaFinal) filtro.fecha.$lte = new Date(fechaFinal);
+        }
+      console.log(filtro);
+        try {
+          const transacciones = await Transaccion.find(filtro);
+      
+          const resultado = transacciones.map(trans => ({
+            NoTransaccion: trans.noTransaccion,
+            Fecha: trans.fecha,
+            IdCliente: trans.idCliente,
+            NoFactura: trans.noFactura,
+            Total: trans.total,
+            IdCaja: trans.idCaja,
+            ServiciosTransaccion: trans.servicioTransaccion,
+            Estado: trans.estado,
+            MetodosDePago: trans.metodosPago.map(mp => ({
+              NoTarjeta: mp.noTarjeta,
+              IdMetodo: mp.idMetodo,
+              Monto: mp.monto,
+              Correlativo: mp.correlativo,
+              IdBanco: mp.idBanco
+            }))
+          }));
+      
+          return res.status(200).json({ Transacciones: resultado });
+        } catch (error) {
+          console.error("Error al obtener transacciones:", error);
+          return res.status(500).json({ mensaje: "Error al obtener las transacciones" });
+        }
+    },    
+async anular(req, res) {
+    const noTransaccion = req.params.noTransaccion;
+    try {
+        const transaccion = await Transaccion.findOne({ noTransaccion: noTransaccion });
+
+        if (!transaccion) {
+            return res.status(404).json({ mensaje: "No se encontró la transacción con el número proporcionado" });
+        }
+
+        await Transaccion.findByIdAndUpdate(transaccion._id, { estado: 0 });
+        const factura = await Factura.findOne({noFactura: transaccion.noFactura});
+        await Factura.findByIdAndUpdate(factura._id,{estado : 0});
+        return res.status(200).json({ mensaje: "Transacción anulada correctamente" });
+    } catch (error) {
+        console.error("Error al anular la transacción:", error);
+        return res.status(500).json({ mensaje: "No se pudo anular la transacción", error });
+    }
+},
+async listById(req, res){
+        const id = req.params.noTransaccion;
+        const transaccion = await Transaccion.findOne({noTransaccion: id});
+        const MetodosDePago = transaccion.metodosPago.map(metodo => ({
+            noTarjeta: metodo.noTarjeta,
+            IdMetodo: metodo.idMetodo,
+            Monto: metodo.monto,
+            Correlativo: metodo.correlativo,
+            IdBanco: metodo.idBanco
+          }));
+          
+        const transaccionObjeto = {
+            Transaccion : {
+                idTransaccion: transaccion._id,
+                NoAutorizacion: transaccion.noAutorizacion,
+                NoTransacion: transaccion.noTransaccion,
+                Fecha: transaccion.fecha,
+                NoFactura: transaccion.noFactura,
+                Total: transaccion.total,
+                IdCaja: transaccion.idCaja,
+                ServiciosTransaccion: transaccion.servicioTransaccion,
+                Estado: transaccions.estado,
+                MetodosDePago: MetodosDePago 
+            }
+        };
+        res.status(200).json(transaccionObjeto);
+
+        
+        return transaccion;
+    },
+    async list(req, res) {
+        const { fechaInicial, fechaFinal } = req.body;
+      
+        let filtro = {};
+      
+        if (fechaInicial || fechaFinal) {
+          filtro.fecha = {};
+          if (fechaInicial) filtro.fecha.$gte = new Date(fechaInicial);
+          if (fechaFinal) filtro.fecha.$lte = new Date(fechaFinal);
+        }
+      
+        try {
+          const transacciones = await Transaccion.find(filtro);
+      
+          const resultado = transacciones.map(trans => ({
+            NoTransaccion: trans.noTransaccion,
+            Fecha: trans.fecha,
+            IdCliente: trans.idCliente,
+            NoFactura: trans.noFactura,
+            Total: trans.total,
+            IdCaja: trans.idCaja,
+            ServiciosTransaccion: trans.servicioTransaccion,
+            Estado: trans.estado,
+            MetodosDePago: trans.metodosPago.map(mp => ({
+              NoTarjeta: mp.noTarjeta,
+              IdMetodo: mp.idMetodo,
+              Monto: mp.monto,
+              Correlativo: mp.correlativo,
+              IdBanco: mp.idBanco
+            }))
+          }));
+      
+          return res.status(200).json({ Transacciones: resultado });
+        } catch (error) {
+          console.error("Error al obtener transacciones:", error);
+          return res.status(500).json({ mensaje: "Error al obtener las transacciones" });
+        }
+      } ,      
     async create(req, res){
+
             console.log('Transaccion:', Transaccion);
             console.log("Cuerpo recibido: ", req.body);
             const nit = req.body.Nit
@@ -79,18 +205,19 @@ module.exports = {
             const servicioTransaccion = req.body.IdServicioTransaccion
             const detalle = req.body.Detalle;
             const metodosPago = req.body.MetodosPago;
+            let puntosSumar = 0;
             let cliente = null
             
             if(nit)
             {
                 cliente = await Cliente.findOne({nit: nit, estado:1})
                 console.log("Cliente ingresado: ", cliente)
-    
+                let servicioTransaccion1 = parseInt(servicioTransaccion);
                 if(!cliente)
                 {
                     return res.status(500).json({mensaje: "El cliente no existe en la base de datos, debe crearlo"})
                 }
-                if(servicioTransaccion != 4)
+                if(servicioTransaccion1 < 1 && servicioTransaccion1 > 8)
                 {
                     return res.status(500).json({mensaje: "El servicio ingresado no es valido"})
                 }
@@ -140,7 +267,7 @@ module.exports = {
                 }
                 console.log("Metodo pago actual ", metodoPago)
                 totalPagado += metodoPago.monto
-                if ([2, 3, 5].includes(metodoPago.idMetodo) && (!metodoPago.noTarjeta || metodoPago.noTarjeta.trim() === '')) {
+                if ([2, 3].includes(metodoPago.idMetodo) && (!metodoPago.noTarjeta || metodoPago.noTarjeta.trim() === '')) {
                     return res.status(400).json({
                         mensaje: `El campo 'noTarjeta' es obligatorio para el método de pago ${metodoPago.idMetodo}`
                     });
@@ -183,9 +310,17 @@ module.exports = {
                         console.log(metodoPago.correlativo)
                         break;
                     case 5:
-                        const noTarjetaFidelidad = await Transaccion.countByMetodoPago(5)
-                        metodoPago.correlativo = "FID-"+noTarjetaFidelidad
-                        console.log(metodoPago.correlativo)
+                        const puntosNecesarios = metodoPago.monto;
+                        puntosSumar -= metodoPago.monto;
+                        const resultado = await tarjetaService.restarPuntos(cliente._id, puntosNecesarios);
+                        if (!resultado.ok) {
+                            console.log("LOS PUNTOS NO SON SUFICIENTES");
+                            return res.status(400).json({ mensaje: resultado.mensaje });
+                        }   
+
+                        const noTarjetaFidelidad = await Transaccion.countByMetodoPago(5);
+                        metodoPago.correlativo = "FID-" + noTarjetaFidelidad;
+                        console.log(metodoPago.correlativo);
                         break;
                     default:
                         return res.status(500).json({mensaje: "Metodo de pago no valido"})
@@ -239,7 +374,9 @@ module.exports = {
                 }
                 if(cliente)
                 {
-                   await tarjetaService.sumarPuntos(cliente._id, totalCompra)
+                   puntosSumar += totalCompra;
+                   console.log(puntosSumar); 
+                   await tarjetaService.sumarPuntos(cliente._id, puntosSumar)
                 }
 
                 return res.status(201).json(objetoRespuesta);

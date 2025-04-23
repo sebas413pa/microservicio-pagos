@@ -38,9 +38,10 @@ const clienteSchema = new mongoose.Schema({
     },
     direccionCliente: {
         type: String,
-        default: "Ciudad"
+        default: "Ciudad",
+  
     }
-}, { _id: false })
+}, { _id: false }) 
 const detalleSchema = new mongoose.Schema({
     producto: {
         type: String,
