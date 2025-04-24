@@ -19,10 +19,10 @@ const BancoSchema = new mongoose.Schema(
                     type: String,
                 },
                 idMetodo: {
-                    type: mongoose.Schema.Types.ObjectId,
+                    type: Number
                 },
                 monto: {
-                    type: mongoose.Schema.Types.Decimal128,
+                    type: Number,
                     default: 0.00
                 }
             }

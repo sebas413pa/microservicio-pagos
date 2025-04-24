@@ -100,5 +100,22 @@ transaccionesSchema.statics.countByMetodoPago = async function (idMetodo) {
     return await this.countDocuments({ "metodosPago.idMetodo": idMetodo });
 };
 
+transaccionesSchema.statics.filtrarPorFecha = async function (fecha,servicio,caja) {
+    const inicioDia = new Date(fecha);
+    const finDia = new Date(fecha);
+    finDia.setDate(finDia.getDate() + 1);
+
+    return await this.find({
+        fecha: {
+            $gte: inicioDia,
+            $lt: finDia
+
+        },
+        servicioTransaccion:servicio,
+        idCaja:caja
+    });
+};
+
+
 const Transaccion = mongoose.model('Transaccion', transaccionesSchema, 'transacciones');
 module.exports = Transaccion;

@@ -8,7 +8,7 @@ const fidelidadController = require('../controllers/fidelidadController')
 const transaccionesController = require('../controllers/transaccionController')
 const facturasController = require('../controllers/facturasController');
 const devolucionesController = require('../controllers/devolucionesController');
-
+const retirosController = require ('../controllers/retirosController');
 router.post('/metodos/crear', metodo.create);
 router.put('/metodos/eliminar/:_id', metodo.eliminarMetodo);
 router.get('/metodos/obtener', metodo.obtenerMetodosPago);
@@ -34,13 +34,15 @@ module.exports = (app) => {
     router.get('/metodos/obtener/:_id', metodo.obtenerMetodoPagoPorId);
 
     // Cierre de caja
-    router.post('/cierre/obtener', cierre.obtenerCierres); 
+    router.get('/cierres/obtener', cierre.obtenerCierres); 
     router.post('/cierres/crear', cierre.create);
+    
     //BANCOS
     router.post('/bancos/crear',bancosController.crearBanco);
     router.get('/bancos/obtener',bancosController.obtenerBancos);
     router.get('/bancos/obtener/:id',bancosController.obtenerBancoPorId);
     router.put('/bancos/eliminar/:id',bancosController.eliminarBanco);  
+    router.get('/bancos/listarTransacciones/:IdBanco', bancosController.listarTransacciones);
 
     //TRANSACCION
     router.post('/transacciones/crear', transaccionesController.create);
@@ -52,9 +54,17 @@ module.exports = (app) => {
     //FACTURAS
     router.get('/facturas/obtener/:noFactura',facturasController.getFacturaById)
     router.put('/facturas/anular/:noFactura',facturasController.anular)
-    
+    router.get('/facturas/obtener',facturasController.obtenerTodas)
+
     //DEVOLUCIONES
     router.post('/devoluciones/crear',devolucionesController.create)
+    router.get('/devoluciones/obtener',devolucionesController.getAll)
+    router.get('/devoluciones/obtener/:noDevolucion',devolucionesController.getById)
+
+    //RETIROS
+    // router.post('/retiros/crear', retirosController.create);
+
+
 
     app.use('/pagos', router)
 };

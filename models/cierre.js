@@ -60,9 +60,7 @@ const cierreSchema = new mongoose.Schema({
     diferencia: {
         type: Number,
     },
-    usuario: [usuarioSchema],
-    transacciones: [transaccionSchema],
-    retiros: [retirosSchema],
+    usuario: usuarioSchema,
 
 }, { timestamps: true,
     versionKey: false

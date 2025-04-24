@@ -43,3 +43,35 @@ exports.eliminarBanco = async (req, res) => {
         res.status(500).json({ mensaje: "Error al eliminar el banco", error: error.message });
     }
 };
+
+exports.listarTransacciones = async (req, res) => {
+    const filtro = req.body.idMetodo; // ID del método de pago a filtrar (puede ser undefined)
+    try {
+        const idBanco = req.params.IdBanco;
+        const banco = await Banco.findById(idBanco);
+        if (!banco) {
+            return res.status(404).json({ mensaje: "Banco no encontrado" });
+        }
+
+        // Si no se pasa un filtro, usar todas las transacciones
+        const transaccionesBanco = filtro 
+            ? banco.transacciones.filter(transaccion => 
+                transaccion.metodosDePago.idMetodo === filtro
+              )
+            : banco.transacciones;
+
+        let montoTotal = 0;
+        for (const element of transaccionesBanco) {
+            montoTotal += parseInt(element.metodosDePago.monto);
+        }
+
+        const objetoDevolver = {
+            montoTotalBanco: montoTotal,
+            transacciones: transaccionesBanco
+        };
+
+        res.status(200).json(objetoDevolver);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al listar las transacciones', error: error.message });
+    }
+};
