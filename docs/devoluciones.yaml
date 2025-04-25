@@ -1,0 +1,116 @@
+openapi: 3.0.3
+info:
+  title: API de Devoluciones
+  version: 1.0.0
+  description: Endpoints para la gestión de devoluciones asociadas a transacciones y facturas.
+
+paths:
+  /devoluciones/crear:
+    post:
+      summary: Crear una nueva devolución
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                NoTransaccion:
+                  type: number
+                  example: 12345
+                Monto:
+                  type: number
+                  example: 150.00
+                Descripcion:
+                  type: string
+                  example: Producto defectuoso
+      responses:
+        '201':
+          description: Devolución creada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Mensaje:
+                    type: string
+                    example: Devolucion realizada correctamente
+        '500':
+          description: Error al crear la devolución
+
+  /devoluciones/obtener:
+    get:
+      summary: Obtener todas las devoluciones, opcionalmente filtradas por fecha
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fechaInicial:
+                  type: string
+                  format: date-time
+                  example: "2024-01-01T00:00:00Z"
+                fechaFinal:
+                  type: string
+                  format: date-time
+                  example: "2024-12-31T23:59:59Z"
+      responses:
+        '200':
+          description: Lista de devoluciones
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Devoluciones:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Devolucion'
+        '500':
+          description: Error al obtener las devoluciones
+
+  /devoluciones/obtener/{noDevolucion}:
+    get:
+      summary: Obtener una devolución por número de devolución
+      parameters:
+        - in: path
+          name: noDevolucion
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Devolución encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Devolucion:
+                    $ref: '#/components/schemas/Devolucion'
+        '404':
+          description: No se encontró la devolución
+        '500':
+          description: Error al obtener la devolución
+
+components:
+  schemas:
+    Devolucion:
+      type: object
+      properties:
+        NoDevolucion:
+          type: number
+        NoTransaccion:
+          type: number
+        Monto:
+          type: number
+        Descripcion:
+          type: string
+        NoAutorizacion:
+          type: string
+        Fecha:
+          type: string
+          format: date-time
+        NotaCredito:
+          type: string
