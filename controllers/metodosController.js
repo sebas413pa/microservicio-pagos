@@ -16,6 +16,30 @@ exports.obtenerMetodosPago = async (req, res) => {
     }
 };
 
+exports.obtenerTransaccionesMetodo = async (req, res) => {
+    const metodo = req.params.noMetodo
+    try{
+        const metodoPago = await MetodoPago.findOne({noMetodo: metodo})
+        if(!metodoPago) {
+            res.status(500).json({mensaje: "El metodo de pago no es valido"})
+        }
+        let montoTotal = 0
+        const transaccionesMetodo = metodoPago.transacciones
+        for(const element of transaccionesMetodo){
+            montoTotal += parseFloat(element.monto)
+        }
+        console.log("Monto total del metodo: ", montoTotal)
+        res.status(200).json({
+            MontoTotal: montoTotal,
+            Transacciones:transaccionesMetodo
+        })
+    }
+    catch(error){
+        res.status(500).json({ mensaje: 'Error al listar las transacciones', error: error.message });
+    }
+
+
+}
 exports.obtenerMetodoPagoPorId = async (req, res) => {
     try {
         const { _id } = req.params;

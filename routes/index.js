@@ -32,6 +32,7 @@ module.exports = (app) => {
     router.put('/metodos/eliminar/:_id', metodo.eliminarMetodo);
     router.get('/metodos/obtener', metodo.obtenerMetodosPago);
     router.get('/metodos/obtener/:_id', metodo.obtenerMetodoPagoPorId);
+    router.get('/metodos/obtenerTransacciones/:noMetodo', metodo.obtenerTransaccionesMetodo)
 
     // Cierre de caja
     router.get('/cierres/obtener', cierre.obtenerCierres); 

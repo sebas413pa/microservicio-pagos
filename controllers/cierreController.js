@@ -30,7 +30,7 @@ exports.obtenerCierres = async (req, res) => {
                 IdEmpleado: cierre.usuario[0].idUsuario,
                 NombreCompleto: cierre.usuario[0].nombreUsuario
             } : {},
-            Retiros: cierre.retiros.map(retiro => ({
+            Retiros: (cierre.retiros || []).map(retiro => ({ // Usa un array vacío si retiros es null o undefined
                 NoRetiro: retiro.idRetiro,
                 Monto: retiro.monto
             }))

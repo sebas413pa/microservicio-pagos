@@ -6,6 +6,7 @@ const Banco = require('../models/bancos')
 const Transaccion = require('../models/transaccion');
 const Cliente = db.Cliente
 const Factura = require('../models/facturas');
+const Metodo = require('../models/metodos')
 const tarjetaService = require('../services/fidelidadService')
 
 async function agregarTransaccionBanco(idBanco, metodoPago) {
@@ -16,76 +17,91 @@ async function agregarTransaccionBanco(idBanco, metodoPago) {
         
     }
     const nuevaTransaccion = {
-                noTransaccion: null,
-                idBanco: idBanco,
-                metodosDePago: {
-                    correlativo: metodoPago.correlativo,
-                    idMetodo: metodoPago.idMetodo,
-                    monto: metodoPago.monto
-                }
-            
-}
+        noTransaccion: null,
+        idBanco: idBanco,
+        metodosDePago: {
+            correlativo: metodoPago.correlativo,
+            idMetodo: metodoPago.idMetodo,
+            monto: metodoPago.monto
+        }
+    }
     console.log(nuevaTransaccion);
     return nuevaTransaccion;
 }
-    async function generarCorrelativoBanco(idBanco) {
-        let banco, nombreBanco
-        const noTransferencia = await Transaccion.countByMetodoPago(4);
-        try {
-            banco = await Banco.getNombreById(idBanco)
-            if (!banco) {
-                return res.status(500).json({ mensaje: "Banco ingresado no existente" })
-            }
-            nombreBanco = banco.nombre
-            console.log("banco:", banco)
-            console.log("nombre del banco ", nombreBanco)
-        }
-        catch (error) {
-            console.log("Banco no valido")
-            return res.status(500).json({ mensaje: "Ocurrio un error" })
-        }
-        const totalTransaccionesBanco = banco.totalTransacciones
-        const siglas = nombreBanco
-            .split(' ')
-            .map(p => p[0])
-            .join('')
-            .toUpperCase();
-        return siglas + "-" + noTransferencia + totalTransaccionesBanco
+async function agregarTransaccionMetodos(noMetodo, metodoPago, nit){
+    const metodo = await Metodo.findOne({noMetodo: noMetodo})
+    if(!metodo){
+        res.status(500).json({mensaje:"Metodo de pago no valido"})
     }
+    const nuevaTransaccion = {
+        idMetodo: metodo._id,
+        noTransaccion: null, 
+        correlativo: metodoPago.correlativo,
+        idBanco: metodoPago.idBanco || null,
+        noTarjeta: metodoPago.noTarjeta || null,
+        monto: metodoPago.monto,
+        nitCliente: nit||null
+    }
+    return nuevaTransaccion
+}
 
-    async function generarFactura(detalle, cliente, total, totalDescuento) {
-        const count = await Factura.countDocuments();
-        const noFactura = "FACT-" + String(count + 1).padStart(5, '0');
-        let clienteFactura
-        if (cliente) {
-            clienteFactura = {
-                idCliente: cliente._id,
-                nitCliente: cliente.nit,
-                nombreCliente: cliente.nombreCliente,
-                apellidoCliente: cliente.apellidosCliente,
-                direccionCliente: cliente.direccion
-            }
+async function generarCorrelativoBanco(idBanco) {
+    let banco, nombreBanco
+    const noTransferencia = await Transaccion.countByMetodoPago(4);
+    try {
+        banco = await Banco.getNombreById(idBanco)
+        if (!banco) {
+            return res.status(500).json({ mensaje: "Banco ingresado no existente" })
         }
-        else {
-            clienteFactura = {
-                idCliente: null,
-                nit: "CF",
-                nombreCliente: "Consumidor",
-                apellidoCliente: "Final",
-                direccion: "Ciudad"
-            }
-        }
-        const objetoFactura = new Factura({
-            noFactura: noFactura,
-            detalle: detalle,
-            total: total,
-            totalDescontado: totalDescuento,
-            cliente: clienteFactura,
-            empresa: {}
-        })
-        const factura = await objetoFactura.save()
-        return factura
+        nombreBanco = banco.nombre
+        console.log("banco:", banco)
+        console.log("nombre del banco ", nombreBanco)
     }
+    catch (error) {
+        console.log("Banco no valido")
+        return res.status(500).json({ mensaje: "Ocurrio un error" })
+    }
+    const totalTransaccionesBanco = banco.totalTransacciones
+    const siglas = nombreBanco
+        .split(' ')
+        .map(p => p[0])
+        .join('')
+        .toUpperCase();
+    return siglas + "-" + noTransferencia + totalTransaccionesBanco
+}
+async function generarFactura(detalle, cliente, total, totalDescuento) {
+    const count = await Factura.countDocuments();
+    const noFactura = "FACT-" + String(count + 1).padStart(5, '0');
+    let clienteFactura
+    if (cliente) {
+        clienteFactura = {
+            idCliente: cliente._id,
+            nitCliente: cliente.nit,
+            nombreCliente: cliente.nombreCliente,
+            apellidoCliente: cliente.apellidosCliente,
+            direccionCliente: cliente.direccion
+        }
+    }
+    else {
+        clienteFactura = {
+            idCliente: null,
+            nit: "CF",
+            nombreCliente: "Consumidor",
+            apellidoCliente: "Final",
+            direccion: "Ciudad"
+        }
+    }
+    const objetoFactura = new Factura({
+        noFactura: noFactura,
+        detalle: detalle,
+        total: total,
+        totalDescontado: totalDescuento,
+        cliente: clienteFactura,
+        empresa: {}
+    })
+    const factura = await objetoFactura.save()
+    return factura
+}
 
     module.exports = {
         async listByService(req, res) {
@@ -104,6 +120,8 @@ async function agregarTransaccionBanco(idBanco, metodoPago) {
                 const transacciones = await Transaccion.find(filtro);
 
                 const resultado = transacciones.map(trans => ({
+                    idTransaccion: trans._id,
+                    NoAutorizacion: trans.noAutorizacion,
                     NoTransaccion: trans.noTransaccion,
                     Fecha: trans.fecha,
                     IdCliente: trans.idCliente,
@@ -149,7 +167,7 @@ async function agregarTransaccionBanco(idBanco, metodoPago) {
             const id = req.params.noTransaccion;
             const transaccion = await Transaccion.findOne({ noTransaccion: id });
             const MetodosDePago = transaccion.metodosPago.map(metodo => ({
-                noTarjeta: metodo.noTarjeta,
+                NoTarjeta: metodo.noTarjeta,
                 IdMetodo: metodo.idMetodo,
                 Monto: metodo.monto,
                 Correlativo: metodo.correlativo,
@@ -166,13 +184,11 @@ async function agregarTransaccionBanco(idBanco, metodoPago) {
                     Total: transaccion.total,
                     IdCaja: transaccion.idCaja,
                     ServiciosTransaccion: transaccion.servicioTransaccion,
-                    Estado: transaccions.estado,
+                    Estado: transaccion.estado,
                     MetodosDePago: MetodosDePago
                 }
             };
             res.status(200).json(transaccionObjeto);
-
-
             return transaccion;
         },
         async list(req, res) {
@@ -190,6 +206,8 @@ async function agregarTransaccionBanco(idBanco, metodoPago) {
                 const transacciones = await Transaccion.find(filtro);
 
                 const resultado = transacciones.map(trans => ({
+                    idTransaccion: trans._id,
+                    NoAutorizacion: trans.noAutorizacion,
                     NoTransaccion: trans.noTransaccion,
                     Fecha: trans.fecha,
                     IdCliente: trans.idCliente,
@@ -214,7 +232,6 @@ async function agregarTransaccionBanco(idBanco, metodoPago) {
             }
         },
         async create(req, res) {
-
             console.log('Transaccion:', Transaccion);
             console.log("Cuerpo recibido: ", req.body);
             const nit = req.body.Nit
@@ -271,6 +288,7 @@ async function agregarTransaccionBanco(idBanco, metodoPago) {
             let totalPagado = 0
             let metodosPagoProcesados = []
             let arregloTransacciones = []
+            let arregloTransaccionesMetodos = []
             for (const element of metodosPago) {
 
                 const metodoPago = {
@@ -300,7 +318,7 @@ async function agregarTransaccionBanco(idBanco, metodoPago) {
                         const oculto = '*'.repeat(longitud - 4) + ultimos4;
                         metodoPago.noTarjeta = oculto;
                     } else {
-                        metodoPago.noTarjeta = metodoPago.noTarjeta.padStart(4, '*'); // Por si es muy corta
+                        metodoPago.noTarjeta = metodoPago.noTarjeta.padStart(4, '*');
                     }
                 }
                 
@@ -341,8 +359,8 @@ async function agregarTransaccionBanco(idBanco, metodoPago) {
                         return res.status(500).json({ mensaje: "Metodo de pago no valido" })
                 }                
                 metodosPagoProcesados.push(metodoPago);
+                arregloTransaccionesMetodos.push(await agregarTransaccionMetodos(metodoPago.idMetodo, metodoPago, nit))
                 if (metodoPago.idMetodo == 2 || metodoPago.idMetodo == 3 || metodoPago.idMetodo == 4) {
-                    // 
                     arregloTransacciones.push(await agregarTransaccionBanco(metodoPago.idBanco,metodoPago));
                 }
             }
@@ -352,6 +370,15 @@ async function agregarTransaccionBanco(idBanco, metodoPago) {
                 console.log("No se puede completar la transaccion porque el total de compra no coincide con el total pagado")
                 return res.status(500).json({ mensaje: "El total de compra no coincide con el total pagado" })
             }
+            let id_cliente
+            if(cliente)
+            {
+                id_cliente = cliente._id
+            }
+            else
+            {
+                id_cliente = null
+            }
             const objetoTransaccion = new Transaccion({
                 noAutorizacion: crypto.randomUUID(),
                 fecha: new Date(),
@@ -360,7 +387,8 @@ async function agregarTransaccionBanco(idBanco, metodoPago) {
                 idCaja,
                 servicioTransaccion,
                 metodosPago: metodosPagoProcesados,
-                detalle: detalleProcesado
+                detalle: detalleProcesado,
+                idCliente: id_cliente
             })
             let facturaHecha
 
@@ -378,9 +406,25 @@ async function agregarTransaccionBanco(idBanco, metodoPago) {
             try {
                 const transaccionHecha = await objetoTransaccion.save();
                 console.log(transaccionHecha);
-                for(const element of arregloTransacciones){
+                for (const element of arregloTransacciones) {
                     element.noTransaccion = transaccionHecha._id;
-                    await Banco.findOneAndUpdate({_id : element.idBanco}, { $push: { transacciones: element } });
+
+                    await Banco.findOneAndUpdate(
+                        { _id: element.idBanco },
+                        {
+                            $push: { transacciones: element },
+                            $inc: { totalTransacciones: 1 } 
+                        }
+                    );
+                }
+
+                for (const element of arregloTransaccionesMetodos) {
+                    element.noTransaccion = transaccionHecha._id;
+                    await Metodo.findOneAndUpdate({ _id: element.idMetodo }, {
+                        $push: {
+                            transacciones: element
+                        }
+                    })
                 }
 
                 const facturaLimpia = facturaHecha.toObject()
@@ -402,10 +446,7 @@ async function agregarTransaccionBanco(idBanco, metodoPago) {
                 return res.status(201).json(objetoRespuesta);
             } catch (error) {
                 console.error("Error al guardar la transacción:", error);
-                return res.status(500).json({ mensaje: "Error al guardar la transacción", error });
+                return res.status(500).json({ mensaje: "Error al guardar la transacción"});
             }
         },
-
-
-
     }

@@ -78,6 +78,9 @@ const transaccionesSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    idCliente: {
+        type: String
+    },
     metodosPago:[metodoPagoSchema],
     detalle: [detalleSchema],
     estado: {

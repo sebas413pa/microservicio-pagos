@@ -1,0 +1,309 @@
+openapi: 3.0.3
+info:
+  title: API de Transacciones
+  version: 1.0.0
+  description: Endpoints para la gestión de transacciones en el microservicio de pagos.
+
+paths:
+  /transacciones/crear:
+    post:
+      summary: Crear una nueva transacción
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NuevaTransaccion'
+      responses:
+        '201':
+          description: Transacción creada correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RespuestaTransaccion'
+        '400':
+          description: Error en los datos de entrada
+        '500':
+          description: Error interno del servidor
+
+  /transacciones/anular/{noTransaccion}:
+    put:
+      summary: Anular una transacción existente
+      parameters:
+        - name: noTransaccion
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Transacción anulada correctamente
+        '404':
+          description: Transacción no encontrada
+        '500':
+          description: Error al anular la transacción
+
+  /transacciones/obtener/{noTransaccion}:
+    get:
+      summary: Obtener una transacción por su número
+      parameters:
+        - name: noTransaccion
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detalles de la transacción
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Transaccion:
+                    type: object
+                    items:
+                      $ref: '#/components/schemas/TransaccionConMetodos'
+        '404':
+          description: Transacción no encontrada
+
+  /transacciones/obtener:
+    get:
+      summary: Listar transacciones por rango de fechas (si se proporcionan)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FiltroFecha'
+      responses:
+        '200':
+          description: Lista de transacciones
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Transacciones:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TransaccionConMetodos'
+        '500':
+          description: Error al obtener las transacciones
+
+  /transacciones/obtenerPorServicio/{idServicio}:
+    get:
+      summary: Obtener transacciones por servicio y fechas
+      parameters:
+        - name: idServicio
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FiltroFecha'
+      responses:
+        '200':
+          description: Lista de transacciones del servicio
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Transacciones:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TransaccionConMetodos'
+        '500':
+          description: Error interno al obtener los datos
+
+components:
+  schemas:
+    FiltroFecha:
+      type: object
+      properties:
+        fechaInicial:
+          type: string
+          format: date
+        fechaFinal:
+          type: string
+          format: date
+
+    NuevaTransaccion:
+      type: object
+      properties:
+        Nit:
+          type: string
+          example: 1234567-7
+        IdCaja:
+          type: number
+        IdServicioTransaccion:
+          type: number
+          enum: [1, 2, 3, 4, 5, 6, 7]
+          description: Debe ser un número del 1 al 7
+        Detalle:
+          type: array
+          items:
+            type: object
+            properties:
+              Producto:
+                type: string
+              Cantidad:
+                type: number
+              Precio:
+                type: number
+              Descuento:
+                type: number
+                example: 0.30
+                description: El porcentaje se da en decimales (10% como 0.1)
+        MetodosPago:
+          type: array
+          items:
+            type: object
+            properties:
+              IdMetodo:
+                type: integer
+                enum: [1, 2, 3, 4, 5]
+                  description: >
+                    Método de pago. Valores posibles:
+                      1 = Efectivo
+                      2 = Tarjeta de Crédito
+                      3 = Tarjeta de Débito
+                      4 = Transferencia
+                      5 = Fidelidad 
+              Monto:
+                type: number
+              IdBanco:
+                type: string
+                description: solo esperado si es metodo de pago 2, 3 o 4
+              NoTarjeta:
+                type: string
+                description: solo esperado si es metodo de pago 2 o 3
+
+    RespuestaTransaccion:
+      type: object
+      properties:
+        mensaje:
+          type: string
+          example: Transacción realizada correctamente
+        idTransaccion:
+          type: string
+        noTransaccion:
+          type: number
+        noAutorizacion:
+          type: string
+        factura:
+          type: object
+          properties:
+            noFactura:
+              type: string
+              example: "FACT-00010"
+            empresa:
+              type: object
+              properties:
+                nitEmpresa:
+                  type: string
+                nombreEmpresa:
+                  type: string
+                telefonoEmpresa:
+                  type: string
+                direccionEmpresa:
+                  type: string
+            cliente:
+              type: object
+              properties:
+                idCliente:
+                  type: string
+                nitCliente:
+                  type: string
+                nombreCliente:
+                  type: string
+                apellidoCliente:
+                  type: string
+                direccionCliente:
+                  type: string
+            detalle:
+              type: array
+              items:
+                type: object
+                properties:
+                  producto:
+                    type: string
+                  cantidad:
+                    type: number
+                  precio:
+                    type: number
+                  descuento:
+                    type: number
+            total:
+              type: number
+              description: total de la compra restando el descuento
+            totalDescontado:
+              type: number
+              description: total descontado de la compra en su totalidad
+            estado:
+              type: number
+              description: el estado es 1 si la compra fue procesada y terminada
+            fecha:
+              type: string
+              format: date-time
+            notasCredito:
+              type: array
+              items:
+                type: object
+              description: Lista de notas de crédito asociadas
+            createdAt:
+              type: string
+              format: date-time
+              example: "2025-04-25T00:54:40.257Z"
+            updatedAt:
+              type: string
+              format: date-time
+              example: "2025-04-25T00:54:40.257Z"
+
+    TransaccionConMetodos:
+      type: object
+      properties:
+        idTransaccion:
+          type: string
+        NoAutorizacion:
+          type: string
+        NoTransaccion:
+          type: number
+        Fecha:
+          type: string
+          format: date-time
+        NoFactura:
+          type: string
+          nullable: true
+        Total:
+          type: number
+        IdCaja:
+          type: integer
+        ServiciosTransaccion:
+          type: integer
+        Estado:
+          type: integer
+        MetodosDePago:
+          type: array
+          items:
+            type: object
+            properties:
+              NoTarjeta:
+                type: string
+                nullable: true
+                description: solo si el metodo de pago es 2 o 3
+              IdMetodo:
+                type: integer
+              Monto:
+                type: number
+              Correlativo:
+                type: string
+              IdBanco:
+                type: string
+                nullable: true
+                description: solo si el metodo de pago es 2, 3 o 4
+
+            

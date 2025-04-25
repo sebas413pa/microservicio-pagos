@@ -50,7 +50,6 @@ const clienteSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
-    compras: [Number], 
     estado: {
         type: Number,
         default: 1,

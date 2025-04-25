@@ -1,0 +1,173 @@
+openapi: 3.0.3
+info:
+  title: API de Clientes
+  version: 1.0.0
+  description: Endpoints para gestionar clientes.
+
+paths:
+  /cliente/crear:
+    post:
+      summary: Crear un nuevo cliente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClienteInput'
+      responses:
+        '200':
+          description: Cliente creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cliente'
+        '400':
+          description: Error de validación o campo duplicado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje:
+                    type: string
+
+  /cliente/obtener:
+    get:
+      summary: Obtener todos los clientes
+      responses:
+        '200':
+          description: Lista de clientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  clientes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Cliente'
+        '500':
+          description: Error al obtener los clientes
+
+  /cliente/obtener/{nit}:
+    get:
+      summary: Buscar cliente por NIT
+      parameters:
+        - name: nit
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cliente encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cliente:
+                    $ref: '#/components/schemas/Cliente'
+        '500':
+          description: Cliente no encontrado o error al consultar
+
+  /cliente/actualizar/{idCliente}:
+    put:
+      summary: Actualizar cliente por ID
+      parameters:
+        - name: idCliente
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClienteUpdateInput'
+      responses:
+        '200':
+          description: Cliente actualizado exitosamente
+        '400':
+          description: Error al editar el cliente
+
+  /cliente/eliminar/{idCliente}:
+    put:
+      summary: Eliminar cliente (cambio de estado a 0)
+      parameters:
+        - name: idCliente
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cliente eliminado exitosamente
+        '400':
+          description: Error al eliminar el cliente
+
+components:
+  schemas:
+    Cliente:
+      type: object
+      properties:
+        nombreCliente:
+          type: string
+        apellidosCliente:
+          type: string
+        nit:
+          type: string
+        direccion:
+          type: string
+        telefono:
+          type: string
+        email:
+          type: string
+        dpi:
+          type: string
+        estado:
+          type: integer
+        _id:
+          type: string
+        tarjetaFidelidad:
+          type: string
+
+    ClienteInput:
+      type: object
+      required:
+        - NombreCliente
+        - ApellidosCliente
+        - Nit
+      properties:
+        NombreCliente:
+          type: string
+        ApellidosCliente:
+          type: string
+        Nit:
+          type: string
+        Direccion:
+          type: string
+        Telefono:
+          type: string
+        Email:
+          type: string
+        Dpi:
+          type: string
+
+    ClienteUpdateInput:
+      type: object
+      required:
+        - NombreCliente
+        - ApellidosCliente
+      properties:
+        NombreCliente:
+          type: string
+        ApellidosCliente:
+          type: string
+        Direccion:
+          type: string
+        Telefono:
+          type: string
+        Email:
+          type: string

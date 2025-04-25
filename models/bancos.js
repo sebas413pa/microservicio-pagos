@@ -1,33 +1,33 @@
 const mongoose = require ('mongoose');
 
+const transaccionesSchema = new mongoose.Schema({
+    noTransaccion: {
+        type: mongoose.Schema.Types.ObjectId,
+    },
+    metodosDePago: {
+        correlativo: {
+            type: String,
+        },
+        idMetodo: {
+            type: Number
+        },
+        monto: {
+            type: Number,
+            default: 0.00
+        }
+    }
+}, { _id: false })
 const BancoSchema = new mongoose.Schema(
 {
     nombre: {
-        type: String
+        type: String,
+        required: true
     },
     totalTransacciones: {
         type: Number,
         default:0,
     },
-    transacciones: [
-        {
-            noTransaccion: {
-                type: mongoose.Schema.Types.ObjectId,
-            },
-            metodosDePago: {
-                correlativo: {
-                    type: String,
-                },
-                idMetodo: {
-                    type: Number
-                },
-                monto: {
-                    type: Number,
-                    default: 0.00
-                }
-            }
-        }
-    ],
+    transacciones: [transaccionesSchema],
     estado: {
         type: Number,
         default: 1
