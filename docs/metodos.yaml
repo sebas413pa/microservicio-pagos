@@ -1,0 +1,174 @@
+openapi: 3.0.3
+info:
+  title: API de Métodos de Pago
+  version: 1.0.0
+  description: Endpoints para la gestión de métodos de pago en el microservicio de pagos.
+
+paths:
+  /metodos/crear:
+    post:
+      summary: Crear un nuevo método de pago
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MetodoPagoCrear'
+      responses:
+        '200':
+          description: Método creado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  mensaje:
+                    type: string
+                    example: Método creado exitosamente
+        '400':
+          description: Datos inválidos o incompletos
+        '500':
+          description: Error interno al crear el método
+
+  /metodos/eliminar/{_id}:
+    put:
+      summary: Eliminar (desactivar) un método de pago
+      parameters:
+        - name: _id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Método eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  mensaje:
+                    type: string
+                    example: Metodo eliminado exitosamente
+        '404':
+          description: Método no encontrado
+        '500':
+          description: Error interno del servidor
+
+  /metodos/obtener:
+    get:
+      summary: Obtener todos los métodos de pago activos
+      responses:
+        '200':
+          description: Lista de métodos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Metodos:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MetodoPagoResumen'
+        '500':
+          description: Error al obtener los métodos
+
+  /metodos/obtener/{_id}:
+    get:
+      summary: Obtener un método de pago por ID
+      parameters:
+        - name: _id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Método encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Metodo:
+                    $ref: '#/components/schemas/MetodoPagoResumen'
+        '404':
+          description: Método no encontrado
+        '500':
+          description: Error al obtener el método
+
+  /metodos/obtenerTransacciones/{noMetodo}:
+    get:
+      summary: Obtener transacciones asociadas a un método de pago
+      parameters:
+        - name: noMetodo
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Transacciones encontradas para el método
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  MontoTotal:
+                    type: number
+                    example: 500.00
+                  Transacciones:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TransaccionMetodoPago'
+        '500':
+          description: Error al obtener las transacciones
+
+components:
+  schemas:
+    MetodoPagoCrear:
+      type: object
+      properties:
+        metodo:
+          type: string
+          description: Nombre del método de pago (Efectivo, Tarjeta Crédito, etc)
+          example: Transferencia
+
+    MetodoPagoResumen:
+      type: object
+      properties:
+        IdMetodo:
+          type: string
+          example: 680acb86cf828c89e6a56b22
+        Metodo:
+          type: string
+          example: Efectivo
+
+    TransaccionMetodoPago:
+      type: object
+      properties:
+        noTransaccion:
+          type: string
+          example: TX123456
+        correlativo:
+          type: string
+          example: TX-0001
+        idBanco:
+          type: string
+          example: 680b0539cbac08fec84b9d2f
+        noTarjeta:
+          type: string
+          example: 1234-5678-9012-3456
+        monto:
+          type: number
+          example: 100.00
+        nitCliente:
+          type: string
+          example: 1234567-4
+

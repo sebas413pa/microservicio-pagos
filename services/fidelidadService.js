@@ -26,7 +26,7 @@ async function sumarPuntos(idCliente, puntos) {
 
     return { ok: true, mensaje: "Puntos sumados correctamente" };
   } catch (error) {
-    conso0le.error("Error al sumar puntos:", error);
+    console.error("Error al sumar puntos:", error);
     return { ok: false, mensaje: "Error interno al sumar puntos" };
   }
 }
