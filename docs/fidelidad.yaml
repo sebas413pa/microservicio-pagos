@@ -1,0 +1,81 @@
+openapi: 3.0.3
+info:
+  title: API de Fidelidad
+  version: 1.0.0
+  description: Endpoints para la gestión de tarjetas de fidelidad de clientes.
+
+paths:
+  /cliente/fidelidad/crear/{idCliente}:
+    post:
+      summary: Crear una nueva tarjeta de fidelidad para un cliente
+      parameters:
+        - name: idCliente
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Tarjeta creada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje:
+                    type: string
+                    example: Tarjeta agregada exitosamente
+                  noTarjeta:
+                    type: string
+                    example: FID-1234567890108-1
+        '422':
+          description: Ya existe una tarjeta activa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje:
+                    type: string
+                    example: El cliente tiene una tarjeta de fidelidad activa
+        '400':
+          description: Error de validación
+        '500':
+          description: Cliente no encontrado
+
+  /cliente/fidelidad/desactivar/{idCliente}:
+    put:
+      summary: Desactivar la tarjeta de fidelidad activa de un cliente
+      parameters:
+        - name: idCliente
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Tarjeta desactivada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje:
+                    type: string
+                    example: Tarjeta desactivada exitosamente
+        '422':
+          description: El cliente no tiene una tarjeta activa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje:
+                    type: string
+                    example: El cliente no tiene una tarjeta de fidelidad activa
+        '400':
+          description: Error al actualizar tarjeta
+        '500':
+          description: Cliente no encontrado

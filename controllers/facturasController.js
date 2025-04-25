@@ -40,8 +40,7 @@ async getFacturaById(req, res) {
               Detalle: factura.detalle?.map(item => ({
                 Producto: item.producto || "",
                 Cantidad: item.cantidad || "",
-                Precio: item.precio || "",
-                estado: item.estado || ""
+                Precio: item.precio || ""
               })) || [],
               Total: factura.total || "",
               NotasCredito: factura.notasCredito?.map(nc => ({
@@ -101,12 +100,11 @@ async getFacturaById(req, res) {
               Detalle: factura.detalle?.map(item => ({
                 Producto: item.producto || "",
                 Cantidad: item.cantidad || "",
-                Precio: item.precio || "",
-                estado: item.estado || ""
+                Precio: item.precio || ""
               })) || [],
               Total: factura.total || "",
               NotasCredito: factura.notasCredito?.map(nc => ({
-                IdNota: nc._id?.toString() || "",
+                IdNota: nc.noNotaCredito?.toString() || "",
                 Monto: nc.monto || "",
                 Descripcion: nc.descripcion || ""
               })) || []

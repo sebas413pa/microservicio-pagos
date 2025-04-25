@@ -67,7 +67,7 @@ paths:
                 type: object
                 properties:
                   cliente:
-                    $ref: '#/components/schemas/Cliente'
+                    $ref: '#/components/schemas/ClienteList'
         '500':
           description: Cliente no encontrado o error al consultar
 
@@ -89,6 +89,13 @@ paths:
       responses:
         '200':
           description: Cliente actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ClienteActualizado:
+                    $ref: '#/components/schemas/ClienteList'
         '400':
           description: Error al editar el cliente
 
@@ -127,11 +134,79 @@ components:
         dpi:
           type: string
         estado:
-          type: integer
+          type: number
         _id:
           type: string
         tarjetaFidelidad:
+          type: array
+          items:
+            type: object
+            properties:
+              noTarjeta:
+                type: string
+              cantidadPuntos:
+                type: number
+              fechaExpiracion:
+                type: string
+                format: date-time
+              estado:
+                type: integer
+              _id:
+                type: string
+                format: uuid
+        createdAt:
           type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ClienteList:
+      type: object
+      properties:
+        _id:
+          type: string
+        nombreCliente:
+          type: string
+        apellidosCliente:
+          type: string
+        nit: 
+          type: string
+        tarjetaFidelidad:
+          type: array
+          items:
+            type: object
+            properties:
+              noTarjeta:
+                type: string
+              cantidadPuntos:
+                type: number
+              fechaExpiracion:
+                type: string
+                format: date-time
+              estado:
+                type: integer
+              _id:
+                type: string
+                format: uuid
+          direccion:
+            type: string
+          telefono:
+            type: string
+          email:
+            type: string
+          dpi: 
+            type: string
+          estado:
+            type: number
+          createdAt:
+            type: string
+            format: date-time
+          updatedAt:
+            type: string
+            format: date-time
+
+
 
     ClienteInput:
       type: object
@@ -157,9 +232,6 @@ components:
 
     ClienteUpdateInput:
       type: object
-      required:
-        - NombreCliente
-        - ApellidosCliente
       properties:
         NombreCliente:
           type: string
