@@ -90,7 +90,7 @@ module.exports =
             res.status(200).json({ClienteActualizado:clienteActualizado});
         } catch (error) {
             console.error("Error al editar el cliente:", error); 
-            res.status(400).json({ mensaje: "Error al editar el cliente", error });
+            res.status(400).json({ mensaje: "Error al editar el cliente" });
         }
     },
     async delete(req, res)
@@ -109,7 +109,7 @@ module.exports =
         catch(error)
         {
             console.error("Error al eliminar el cliente"); 
-            res.status(400).json({ mensaje: "Error al eliminar el cliente", error });
+            res.status(400).json({ mensaje: "Error al eliminar el cliente" });
         }
     },
     

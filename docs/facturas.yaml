@@ -1,0 +1,141 @@
+openapi: 3.0.3
+info:
+  title: API de Facturas
+  version: 1.0.0
+  description: Endpoints para gestionar facturas.
+
+paths:
+  /facturas/obtener/{noFactura}:
+    get:
+      summary: Obtener una factura por su número
+      parameters:
+        - name: noFactura
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Factura encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacturaRespuesta'
+        '404':
+          description: Factura no encontrada
+
+  /facturas/anular/{noFactura}:
+    put:
+      summary: Anular una factura por su número
+      parameters:
+        - name: noFactura
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Factura anulada correctamente
+        '404':
+          description: Factura no encontrada
+        '500':
+          description: Error interno del servidor
+
+  /facturas/obtener:
+    get:
+      summary: Obtener todas las facturas
+      responses:
+        '200':
+          description: Lista de facturas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Facturas:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Factura'
+        '500':
+          description: Error al obtener las facturas
+
+components:
+  schemas:
+    Empresa:
+      type: object
+      properties:
+        NitEmpresa:
+          type: string
+        NombreEmpresa:
+          type: string
+        TelefonoEmpresa:
+          type: string
+        DireccionEmpresa:
+          type: string
+
+    ClienteFactura:
+      type: object
+      properties:
+        IdCliente:
+          type: string
+        NitCliente:
+          type: string
+        NombreCliente:
+          type: string
+        ApellidoCliente:
+          type: string
+        Direccion:
+          type: string
+
+    DetalleItem:
+      type: object
+      properties:
+        Producto:
+          type: string
+        Cantidad:
+          type: number
+        Precio:
+          type: number
+        estado:
+          type: string
+
+    NotaCredito:
+      type: object
+      properties:
+        IdNota:
+          type: string
+        Monto:
+          type: number
+        Descripcion:
+          type: string
+
+    Factura:
+      type: object
+      properties:
+        NoFactura:
+          type: string
+        Serie:
+          type: string
+        Empresa:
+          $ref: '#/components/schemas/Empresa'
+        Fecha:
+          type: string
+          format: date-time
+        Cliente:
+          $ref: '#/components/schemas/ClienteFactura'
+        Detalle:
+          type: array
+          items:
+            $ref: '#/components/schemas/DetalleItem'
+        Total:
+          type: number
+        NotasCredito:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotaCredito'
+
+    FacturaRespuesta:
+      type: object
+      properties:
+        factura:
+          $ref: '#/components/schemas/Factura'
