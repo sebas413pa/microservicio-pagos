@@ -130,6 +130,49 @@ paths:
         '500':
           description: Error al obtener las transacciones
 
+  /metodos/resumenTransacciones:
+    post:
+      summary: Obtener resumen de todas las transacciones agrupadas por método de pago
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fechaInicial:
+                  type: string
+                  format: date
+                  example: "2024-01-01"
+                fechaFinal:
+                  type: string
+                  format: date
+                  example: "2024-12-31"
+      responses:
+        '200':
+          description: Resumen de transacciones por método
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resumen:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        metodo:
+                          type: string
+                          example: Efectivo
+                        cantidadTransacciones:
+                          type: integer
+                          example: 5
+                        totalRecaudado:
+                          type: string
+                          example: "500.00"
+        '500':
+          description: Error al generar el resumen
+
 components:
   schemas:
     MetodoPagoCrear:
@@ -171,4 +214,3 @@ components:
         nitCliente:
           type: string
           example: 1234567-4
-
