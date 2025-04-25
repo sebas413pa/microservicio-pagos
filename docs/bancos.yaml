@@ -1,0 +1,175 @@
+openapi: 3.0.3
+info:
+  title: API de Bancos
+  version: 1.0.0
+  description: Endpoints para la gestión de bancos y sus transacciones.
+
+paths:
+  /bancos/crear:
+    post:
+      summary: Crear un nuevo banco
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BancoInput'
+      responses:
+        '200':
+          description: Banco creado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje:
+                    type: string
+                    example: Banco creado exitosamente
+        '500':
+          description: Error al crear el banco
+
+  /bancos/obtener:
+    get:
+      summary: Obtener todos los bancos
+      responses:
+        '200':
+          description: Lista de bancos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Bancos:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Banco'
+        '500':
+          description: Error al obtener los bancos
+
+  /bancos/obtener/{id}:
+    get:
+      summary: Obtener un banco por ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Banco encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Banco:
+                    $ref: '#/components/schemas/Banco'
+        '500':
+          description: Error al obtener el banco
+
+  /bancos/eliminar/{id}:
+    put:
+      summary: Eliminar un banco (cambio de estado a 0)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Banco eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje:
+                    type: string
+        '404':
+          description: Banco no encontrado
+        '500':
+          description: Error al eliminar el banco
+
+  /bancos/listarTransacciones/{IdBanco}:
+    get:
+      summary: Listar transacciones de un banco, opcionalmente filtradas por método de pago
+      parameters:
+        - in: path
+          name: IdBanco
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                idMetodo:
+                  type: integer
+                  description: Método de pago para filtrar las transacciones (opcional)
+      responses:
+        '200':
+          description: Lista de transacciones del banco
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  montoTotalBanco:
+                    type: number
+                  transacciones:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TransaccionBanco'
+        '404':
+          description: Banco no encontrado
+        '500':
+          description: Error al listar las transacciones
+
+components:
+  schemas:
+    BancoInput:
+      type: object
+      properties:
+        nombre:
+          type: string
+
+    Banco:
+      type: object
+      properties:
+        _id:
+          type: string
+        nombre:
+          type: string
+        totalTransacciones:
+          type: number
+        estado:
+          type: integer
+        transacciones:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransaccionBanco'
+        createdAt:
+          type: date
+          format: date-time
+        updatedAt:
+          type: date
+          format: date-time
+
+    TransaccionBanco:
+      type: object
+      properties:
+        metodosDePago:
+          type: object
+          properties:
+            correlativo:
+              type: string
+            idMetodo:
+              type: integer
+            monto:
+              type: number
+        noTransaccion:
+          type: string

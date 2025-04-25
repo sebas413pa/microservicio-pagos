@@ -1,0 +1,144 @@
+openapi: 3.0.3
+info:
+  title: API de Cierres de Caja
+  version: 1.0.0
+  description: Endpoints para crear y obtener cierres de caja.
+
+paths:
+  /cierres/obtener:
+    get:
+      summary: Obtener cierres de caja por rango de fechas (opcional)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fechaInicio:
+                  type: string
+                  format: date-time
+                  description: Fecha inicial en formato ISO 8601
+                fechaFinal:
+                  type: string
+                  format: date-time
+                  description: Fecha final en formato ISO 8601
+      responses:
+        '200':
+          description: Lista de cierres de caja
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cierre:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CierreCaja'
+        '500':
+          description: Error al obtener los cierres
+
+  /cierres/crear:
+    post:
+      summary: Crear un nuevo cierre de caja
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CierreCajaInput'
+      responses:
+        '201':
+          description: Cierre creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CierreCajaCreado'
+        '500':
+          description: Error al crear el cierre
+
+components:
+  schemas:
+    CierreCajaInput:
+      type: object
+      properties:
+        IdCaja:
+          type: string
+        Servicio:
+          type: string
+        CantidadFinal:
+          type: number
+          description: cantidad contada de forma fisica
+        Empleado:
+          type: object
+          properties:
+            IdEmpleado:
+              type: string
+            NombreCompleto:
+              type: string
+
+    CierreCaja:
+      type: object
+      properties:
+        Id:
+          type: string
+        IdCaja:
+          type: number
+        Servicio:
+          type: number
+        Fecha:
+          type: string
+          format: date-time
+        CantidadInicial:
+          type: number
+        CantidadFinal:
+          type: number
+        Diferencia:
+          type: number
+        Empleado:
+          type: object
+          properties:
+            IdEmpleado:
+              type: string
+            NombreCompleto:
+              type: string
+        Retiros:
+          type: array
+          items:
+            type: object
+            properties:
+              NoRetiro:
+                type: string
+              Monto:
+                type: number
+
+    CierreCajaCreado:
+      type: object
+      properties:
+        IdCaja:
+          type: number
+        IdServicio:
+          type: number
+        Fecha:
+          type: string
+          format: date-time
+        CantidadFinal:
+          type: number
+        Diferencia:
+          type: number
+        Usuario:
+          type: array
+          items:
+            type: object
+            properties:
+              idUsuario:
+                type: string
+              nombreUsuario:
+                type: string
+        _id:
+          type: string
+        CreatedAt:
+          type: string
+          format: date-time
+        UpdatedAt:
+          type: string
+          format: date-time
