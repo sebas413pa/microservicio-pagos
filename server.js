@@ -13,7 +13,7 @@ app.use(express.json());
 const connectDB = async () => {
   try {
     //mongodb://localhost:27017/pagos conexion local
-    mongoose.connect(process.env.MONGO_URI, {
+      await mongoose.connect('mongodb+srv://sebastianrocop7:silotengoquepediryanoquiero@cluster0.4nad6qy.mongodb.net/pagos', {
           useNewUrlParser: true,
           useUnifiedTopology: true,
       });
@@ -23,7 +23,7 @@ const connectDB = async () => {
       process.exit(1);
   }
 };
-//cambioooooo
+
 connectDB()
 
 
