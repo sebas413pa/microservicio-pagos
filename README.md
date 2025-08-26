@@ -30,11 +30,9 @@ MONGO_URI=mongodb://localhost:27017/pagos
 - npm install
 - npm run dev
 ````
-## Construcción con Docker 🐳
+## Construcción y ejecución con Docker 🐳
 ```
 - docker build -t usuario/microservicio-pagos .
 - docker push usuario/microservicio-pagos
-```
-## Ejecución con Docker
+- docker run -d -p 3001:3001 --env-file .env usuario/microservicio-pagos
 ````
-docker run -d -p 3001:3001 --env-file .env usuario/microservicio-pagos
