@@ -3,6 +3,14 @@
 API REST desarrollada en **Node.js + Express** para la gestión financiera de un Sistema Integral de una gasolinera.  
 
 ---
+## 👨‍💻 Autores
+
+| Nombre              | Rol               | GitHub                                                                 |
+|---------------------|------------------|------------------------------------------------------------------------|
+| Sebastián Rocop     | Backend Developer | [sebas413pa](https://github.com/sebas413pa)                           |
+| Constanza Cifuentes | Backend Developer | [ConstanzaCif](https://github.com/ConstanzaCif)                       |
+| Jose Lopez          | Frontend Developer | [JoseLopez1923](https://github.com/JoseLopez1923)                     |
+
 
 ## Requisitos
 - Una base de datos **MongoDB** (local, en Docker o en Atlas)
